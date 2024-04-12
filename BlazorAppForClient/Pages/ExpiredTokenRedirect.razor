@@ -1,0 +1,23 @@
+﻿@page "/expiredTokenRedirect"
+@using BlazorAppForClient.Interfaces;
+@inject IIdentityService IdentityService
+@inject NavigationManager manager
+@layout EmptyLayout
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        IdentityService.SingOutAsync();
+        manager.NavigateTo($"signIn");
+
+
+    }
+
+
+
+
+
+
+}

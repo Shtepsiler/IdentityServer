@@ -1,0 +1,88 @@
+﻿@page "/makeanappointment"
+@using BlazorAppForClient.Exceptions;
+@using BlazorAppForClient.Extensions;
+@using BlazorAppForClient.ViewModels;
+@using BlazorAppForClient.Interfaces;
+@using Blazored.FluentValidation
+@inject NavigationManager navmanager
+
+@using MudBlazor;
+@attribute [Authorize]
+@inject NavigationManager _NavigationManager
+@inject RequestErrorsHandler _RequestErrorsHandler
+@inject ISnackbar Snackbar
+
+@inject IJobService _JobService
+<h3>Make an appointment</h3>
+
+<EditForm Model="@newJoobViewModel" OnValidSubmit="@SublitJob">
+       <FluentValidationValidator />
+    <MudContainer Class="pb-8" MaxWidth="@MaxWidth.Medium">
+        <MudCard Elevation="4" Class="px-sm-4 px-md-12 py-sm-4 py-md-6 py-lg-8 mt-4 mt-md-8 mt-lg-16 mx-auto">
+            <MudCardContent>
+                <MudText Class="mb-xs-4 mb-sm-8 mb-md-16" Typo="@Typo.h4" Align="@Align.Center">"Make an appointment"</MudText>
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" md="6">
+                        <MudTextField  
+                                      Label="Model"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="@newJoobViewModel.ModelName"
+                                      For="@(() => newJoobViewModel.ModelName)" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField 
+                                      Label="Date"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="@newJoobViewModel.IssueDate"
+                                      For="@(() => newJoobViewModel.IssueDate)" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField 
+                                      Label="Description"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="@newJoobViewModel.Description"
+                                      For="@(() => newJoobViewModel.Description)" />
+                    </MudItem>
+  
+                </MudGrid>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Class="mx-auto mt-8 py-2 px-12"
+                           Size="@Size.Large"
+                           Color="@Color.Primary"
+                           Variant="@Variant.Filled"
+                          ButtonType="@ButtonType.Submit">
+                    Make an appointment
+                </MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudContainer>
+</EditForm>
+
+
+
+@code {
+
+
+    public NewJoobViewModel newJoobViewModel = new();
+
+    private async Task SublitJob()
+    {
+       await _RequestErrorsHandler.HandleRequestAsync(async () =>
+        {
+              try{
+            await _JobService.SubmitAJob(newJoobViewModel);
+         }
+    catch (NotAuthrizeExeption ex)
+        {
+            navmanager.NavigateTo($"expiredTokenRedirect");
+        }
+            _NavigationManager.NavigateTo("/");
+             Snackbar.Add("Job added", Severity.Success);
+
+        });
+    }
+
+
+
+}

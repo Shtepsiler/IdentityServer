@@ -105,9 +105,10 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
     builder.Services.AddTransient<ClientAppConfiguration>();
-    
-    
-    builder.Services.AddTransient<EmailSenderConfiguration>();
+
+builder.Services.AddTransient<GoogleClientConfiguration>();
+
+builder.Services.AddTransient<EmailSenderConfiguration>();
     builder.Services.AddTransient<EmailSender>();
         
     builder.Services.AddScoped<IValidator<UserSignInRequest>, UserSignInRequestValidator>();
@@ -125,10 +126,36 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthentication(opt =>
 {
 
-    opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme/*CookieAuthenticationDefaults.AuthenticationScheme*/;
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme /*GoogleDefaults.AuthenticationScheme*/;
 
-}).AddCookie().AddGoogle(GoogleDefaults.AuthenticationScheme, opt =>
+}).AddCookie(x =>
+{
+    x.Cookie.Name = "Bearer";
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new()
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["JwtSecurityKey"])),
+        ClockSkew = TimeSpan.FromHours(1),
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["Bearer"];
+            return Task.CompletedTask;
+        }
+    };
+
+
+
+}).AddGoogle(GoogleDefaults.AuthenticationScheme, opt =>
 {
     opt.ClientId = builder.Configuration["GoogleClientID"];
     opt.ClientSecret = builder.Configuration["GoogleClientSecret"];
@@ -138,7 +165,7 @@ builder.Services.AddAuthentication(opt =>
 
 
 
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+/*    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
            .AddJwtBearer(options =>
            {
                options.TokenValidationParameters = new()
@@ -151,8 +178,20 @@ builder.Services.AddAuthentication(opt =>
                        Encoding.UTF8.GetBytes(builder.Configuration["JwtSecurityKey"])),
                    ClockSkew = TimeSpan.FromHours(1),
                };
-           });
-   
+           });*/
+
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy(name: "CorsPolicy", builder =>
+    {
+        builder.WithOrigins()
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
+
 
 var app = builder.Build();
 
@@ -164,7 +203,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("CorsPolicy");
 app.UseAuthorization();
 
 app.MapControllers();

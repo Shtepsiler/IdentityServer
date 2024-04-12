@@ -80,7 +80,7 @@ namespace BLL.Services
                 var callbackUrl = $"{client.Url}{client.EmailConfirmationPath}?Id={userId}&Code={System.Net.WebUtility.UrlEncode(code)}";
 
                 await emailSender.SendEmailAsync(user.Email, "Confirm your email",
-   $"Please confirm your account by visiting the following URL:\r\n\r\n{callbackUrl}");
+   $"{client.ResetPasswordMessage}{callbackUrl}");
             }
 
             var jwtToken = tokenService.BuildToken(user);
@@ -114,11 +114,11 @@ namespace BLL.Services
                 var userId = await userManager.GetUserIdAsync(user);
                 var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
               //  code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var callbackUrl = $"https://localhost:7071/api/Identity/ConfirmEmail?Id={userId}&Code={code}";
+                var callbackUrl = $"{client.Url}{client.EmailConfirmationPath}?Id={userId}&Code={code}";
 
 
                 await emailSender.SendEmailAsync(user.Email, "Confirm your email",
-   $"Please confirm your account by visiting the following URL:\r\n\r\n{callbackUrl}");
+   $"{client.ResetPasswordMessage}{callbackUrl}");
             }
 
             try

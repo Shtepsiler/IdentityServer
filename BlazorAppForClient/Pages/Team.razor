@@ -1,0 +1,44 @@
+﻿@page "/team"
+@using BlazorAppForClient.Interfaces;
+@using BlazorAppForClient.ViewModels;
+@inject ITeamService _teamservice
+
+<PageTitle>Team</PageTitle>
+
+
+<h1>сторінка на якій знаходиться інформація про команду</h1>
+
+@if(mechanics is not null)
+{  <div class="grid-container">
+    @foreach(var Mechanic in mechanics)
+    {
+            <div class="employee-card">
+            <hr>
+        <h3>@Mechanic.firstName @Mechanic.lastName</h3>
+        <h3>@Mechanic.specialization</h3>
+                <img src="@Mechanic.photoURL" width="300" height="200"/>
+            <hr>
+        </div>
+    
+    }
+    </div>
+}
+
+
+
+
+
+@code{
+    [Parameter]
+    public List<MechanicViewModel> mechanics{ get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        mechanics = (List < MechanicViewModel >) await _teamservice.GetAllAsync();
+
+        
+    }
+
+}

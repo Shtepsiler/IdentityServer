@@ -1,0 +1,19 @@
+﻿@page "/logout"
+@using BlazorAppForClient.Interfaces;
+@using Microsoft.AspNetCore.Mvc;
+@inject IIdentityService IdentityService
+@inject NavigationManager NavigationManager
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        await IdentityService.SingOutAsync();
+        NavigationManager.NavigateTo($"/");
+
+
+    }
+
+}

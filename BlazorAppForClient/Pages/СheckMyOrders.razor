@@ -1,0 +1,90 @@
+﻿@page "/checkmyorders"
+@using BlazorAppForClient.Exceptions;
+@using BlazorAppForClient.Interfaces;
+@using BlazorAppForClient.ViewModels;
+@using MudBlazor;
+@inject IJobService _IlobServise
+@inject NavigationManager navmanager
+
+@attribute [Authorize]
+<h3>Сheck my orders</h3>
+
+
+@if (Jobs is not null)
+{
+    <MudTable Items="@Jobs">
+        <ColGroup>
+            <col style="width:50px;" />
+            <col style="width:50px;" />
+            <col style="width:150px;" />
+            <col style="width:150px;" />
+            <col style="width:50px;" />
+
+        </ColGroup>
+        <HeaderContent>
+            <MudTh>Model</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>IssueDate</MudTh>
+            <MudTh>FinishDate</MudTh>
+            <MudTh>Price</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Model">@context.model</MudTd>
+            <MudTd DataLabel="Status">@context.status</MudTd>
+            <MudTd DataLabel="IssueDate">@context.issueDate</MudTd>
+            <MudTd DataLabel="FinishDate">@context.finishDate</MudTd>
+            <MudTd DataLabel="Price">@context.price</MudTd>
+            <MudTd><MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context.id))">@((context.ShowDetails == true) ? "Hide" : "Show") Details</MudButton></MudTd>
+        </RowTemplate>
+        <ChildRowContent >
+            @if (context.ShowDetails)
+            {
+                <div style="width:300%;">
+                <h2>Id: @context.id</h2>
+                <h2>Model: @context.model</h2>
+                <h2>Mechanic: @context.mechanicFullName</h2>
+                <h2>Manager: @context.managerName</h2>
+                <h2>Manager`s phone: @context.managerPhone</h2>
+                <h2>Status: @context.status</h2>
+                <h2>Issue Date: @context.issueDate</h2>
+                <h2>Finish Date: @context.finishDate</h2>
+                <h2>Price: @context.price</h2>
+                <h2>Description: @context.description</h2>
+           </div>
+
+            }
+        </ChildRowContent>
+    </MudTable>
+
+
+}
+
+
+
+
+
+@code {
+    [Parameter]
+    public List<CompleteJobViewModel> Jobs { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+     
+        try{
+        Jobs = (List<CompleteJobViewModel>)await _IlobServise.GetAsync();
+    }
+    catch (NotAuthrizeExeption ex)
+    {
+        navmanager.NavigateTo($"expiredTokenRedirect");
+    }
+}
+
+    private void ShowBtnPress(int nr)
+    {
+        CompleteJobViewModel job = Jobs.First(f => f.id == nr);
+        job.ShowDetails = !job.ShowDetails;
+    }
+
+
+}

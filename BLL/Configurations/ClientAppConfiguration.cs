@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using MassTransit;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace BLL.Configurations
         public string Url => configuration["ClientUrl"];
         public string EmailConfirmationPath => configuration["ClientUrlEmailConfirmationPath"];
         public string ResetPasswordPath => configuration["ClientUrlEmailResetPasswordPath"];
+
+        public string ResetPasswordMessage => configuration["ResetPasswordMessage"];
 
     }
 }

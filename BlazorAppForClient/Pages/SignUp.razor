@@ -1,0 +1,93 @@
+﻿@page "/signUp"
+@using BlazorAppForClient.Extensions;
+@using BlazorAppForClient.Interfaces;
+@using BlazorAppForClient.ViewModels;
+@using Blazored.FluentValidation
+@using MudBlazor;
+@layout EmptyLayout
+
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IIdentityService IdentityService
+@inject RequestErrorsHandler RequestErrorsHandler
+
+<EditForm Model="user" OnValidSubmit="@SignUpAsync">
+    <FluentValidationValidator />
+    <MudContainer Class="pb-8" MaxWidth="@MaxWidth.Medium">
+        <MudCard Elevation="4" Class="px-sm-4 px-md-12 py-sm-4 py-md-6 py-lg-8 mt-4 mt-md-8 mt-lg-16 mx-auto">
+            <MudCardContent>
+                <MudText Class="mb-xs-4 mb-sm-8 mb-md-16" Typo="@Typo.h4" Align="@Align.Center">"PleaseSignUp"</MudText>
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" md="6">
+                        <MudTextField  
+                                      Label="UserName"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="@user.userName"
+                                      For="@(() => user.userName)" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField 
+                                      Label="Email"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="@user.email"
+                                      For="@(() => user.email)" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField 
+                                      Label="Password"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="@user.password"
+                                      For="@(() => user.password)" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField 
+                                      Label="ConfirmPassword"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="@user.ConfirmPassword"
+                                      For="@(() => user.ConfirmPassword)" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField 
+                                      Label="FirstName"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="@user.firstName"
+                                      For="@(() => user.firstName)" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField 
+                                      Label="LastName"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="@user.lastName"
+                                      For="@(() => user.lastName)" />
+                    </MudItem>
+                 
+                </MudGrid>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Class="mx-auto mt-8 py-2 px-12"
+                           Size="@Size.Large"
+                           Color="@Color.Primary"
+                           Variant="@Variant.Filled"
+                          ButtonType="@ButtonType.Submit">
+                    SignUp
+                </MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudContainer>
+</EditForm>
+
+@code {
+
+    private UserSignUpViewModel user = new();
+
+    private async Task SignUpAsync()
+    {
+       await RequestErrorsHandler.HandleRequestAsync(async () =>
+        {
+            var token = await IdentityService.SignUpAsync(user);
+            NavigationManager.NavigateTo("/");
+            Snackbar.Add("You signed up succesfull!", Severity.Success);
+        });
+    }
+
+}

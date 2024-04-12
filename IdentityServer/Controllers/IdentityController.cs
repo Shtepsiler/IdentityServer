@@ -1,13 +1,18 @@
 ﻿
+using BLL.Configurations;
 using BLL.DTO.Requests;
 using BLL.DTO.Responses;
+using BLL.Services;
 using BLL.Services.Interfaces;
+using DAL.Entities;
 using DAL.Exceptions;
 using FluentValidation;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.WebSockets;
 
@@ -20,11 +25,18 @@ namespace IdentityServer.Controllers
         private IValidator<UserSignUpRequest> _SingUpValidator;
         private IValidator<UserSignInRequest> _SingInValidator;
         private readonly IIdentityService _IdentityService;
-        public IdentityController(IValidator<UserSignInRequest> singinvalidator, IValidator<UserSignUpRequest> singupvalidator, IIdentityService identityService)
+        private readonly GoogleClientConfiguration googleClientConfiguration;
+        private readonly UserManager<User> userManager;
+        private readonly ITokenService tokenService;
+
+        public IdentityController(IValidator<UserSignInRequest> singinvalidator, IValidator<UserSignUpRequest> singupvalidator, IIdentityService identityService, GoogleClientConfiguration googleClientConfiguration, UserManager<User> userService, ITokenService tokenService)
         {
             _SingInValidator = singinvalidator;
             _SingUpValidator = singupvalidator;
             _IdentityService = identityService;
+            this.googleClientConfiguration = googleClientConfiguration;
+            this.userManager = userService;
+            this.tokenService = tokenService;
         }
 
         [HttpPost("signIn")]
@@ -36,13 +48,24 @@ namespace IdentityServer.Controllers
             [FromBody] UserSignInRequest request)
         {
             try
-            {
+            {               
+                if (request == null) { throw new ArgumentNullException(nameof(request)); }
+
                 var valid = _SingInValidator.Validate(request);
 
-                if (request == null) { throw new ArgumentNullException(nameof(request)); }
                 if (!valid.IsValid) { throw new ValidationException(valid.Errors); }
 
                 var response = await _IdentityService.SignInAsync(request);
+
+                HttpContext.Response.Cookies.Append("Bearer", response.Token, new() {
+                Expires = DateTime.Now.AddDays(2),
+                HttpOnly = true,
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
+                });
+
+
                 return Ok(response);
             }
             catch (EntityNotFoundException e)
@@ -54,7 +77,39 @@ namespace IdentityServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { e.Message });
             }
         }
+        [HttpPost("LoginWithGoogle")]
 
+        public async Task<ActionResult<JwtResponse>> LoginWithGoogle([FromBody] string credentials)
+        {
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new List<string> { googleClientConfiguration.GoogleClientID }
+                
+
+            };
+
+
+            var peyload = await GoogleJsonWebSignature.ValidateAsync(credentials, settings);
+
+            
+            var user = userManager.FindByEmailAsync(email: peyload.Email).Result;
+
+           if(user == null)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, "user not found");
+            }
+            var jwtToken = tokenService.BuildToken(user);
+            HttpContext.Response.Cookies.Append("Bearer", tokenService.SerializeToken(jwtToken), new()
+            {
+                Expires = DateTime.Now.AddDays(2),
+                HttpOnly = true,
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
+            });
+            return  Ok(new JwtResponse() { Id = user.Id, Token = tokenService.SerializeToken(jwtToken),  ClientName= user.UserName });
+
+        }
 
         [HttpPost("SignInWitGoogleAsync")]
         public async Task<IActionResult> SignInWitGoogleAsync()
@@ -76,19 +131,29 @@ namespace IdentityServer.Controllers
         [HttpPost("GoogleResopnse")]
         public async Task<IActionResult> GoogleResopnse()
         {
-            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            try
+            {
+                var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var claims = result.Principal.Identities.FirstOrDefault().Claims.Select(claim =>
-            new {
-            claim.Issuer,
-            claim.OriginalIssuer,
-            claim.Type,
-            claim.Value
-            });
+                if (result != null)
+                {
+                    var claims = result.Principal.Identities.FirstOrDefault().Claims.Select(claim =>
+                    new
+                    {
+                        claim.Issuer,
+                        claim.OriginalIssuer,
+                        claim.Type,
+                        claim.Value
+                    });
 
-            return Ok(claims);
-
-                 
+                    return Ok(claims);
+                }
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
         }
 
 
@@ -102,10 +167,20 @@ namespace IdentityServer.Controllers
             try
             {
                 if (request == null) { throw new ArgumentNullException(nameof(request)); }
-                if (!_SingUpValidator.Validate(request).IsValid) { throw new Exception(nameof(request)); }
+
+                var valid = _SingUpValidator.Validate(request);
+                if (!valid.IsValid) { throw new ValidationException(valid.Errors); }
 
                 var response = await _IdentityService.SignUpAsync(request);
 
+                HttpContext.Response.Cookies.Append("Bearer", response.Token, new()
+                {
+                    Expires = DateTime.Now.AddDays(2),
+                    HttpOnly = true,
+                    Secure = true,
+                    IsEssential = true,
+                    SameSite = SameSiteMode.None
+                });
                 return Ok(response);
             }
             catch (Exception e)
