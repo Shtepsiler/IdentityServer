@@ -2,7 +2,6 @@
 using BlazorAppForClient.Extensions;
 using BlazorAppForClient.Interfaces;
 using BlazorAppForClient.ViewModels;
-using Microsoft.AspNetCore.Authentication.Google;
 
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http;
