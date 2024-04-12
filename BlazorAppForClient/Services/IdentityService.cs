@@ -52,16 +52,16 @@ namespace BlazorAppForClient.Services
         {
             await stateProvider.MarkUserAsLoggedOutAsync();
         }
-        /*  public async Task TryRefreshTokenAsync()
-          {
-              var jwt = await ExecuteRequestRefreshTokenAsync("refreshToken");
+      /*  public async Task TryRefreshTokenAsync()
+        {
+            var jwt = await ExecuteRequestRefreshTokenAsync("refreshToken");
 
-              stateProvider.MarkUserAsAuthenticatedAsync(jwt.token, jwt.id, jwt.refreshToken);
-
-
+            stateProvider.MarkUserAsAuthenticatedAsync(jwt.token, jwt.id, jwt.refreshToken);
 
 
-          }*/
+
+
+        }*/
 
 
 
