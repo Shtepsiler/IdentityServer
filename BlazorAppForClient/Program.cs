@@ -51,6 +51,7 @@ builder.Services.AddAuthentication(opt =>
 });
 
 
+
 string APIBaseString = builder.Configuration["APIBaseString"];
 /*builder.Services.AddMvc()
                     .AddFluentValidation(configuration =>
