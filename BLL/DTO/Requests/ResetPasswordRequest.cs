@@ -1,0 +1,19 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BLL.DTO.Requests
+{
+    public class ResetPasswordRequest
+    {
+        public Guid Id { get; set; }
+        public string Code { get; set; }
+        [FromBody]
+        public string NewPasword { get; set; }
+
+    }
+}
