@@ -14,7 +14,8 @@ namespace DAL.Data
         }
 
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<User> Users { get; }
+        public DbSet<Role> Roles { get; }
 
 
 

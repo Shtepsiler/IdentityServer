@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using System.Text;
 
 
@@ -24,6 +25,7 @@ namespace BLL.Services
         private readonly ITokenService tokenService;
         private readonly EmailSender emailSender;
         private readonly ClientAppConfiguration client;
+        private readonly ILogger<IdentityService> logger;
 
         public IdentityService(
         IMapper mapper,
@@ -32,7 +34,8 @@ namespace BLL.Services
         DBContext dbContext
 ,
         EmailSender emailSender,
-        ClientAppConfiguration client)
+        ClientAppConfiguration client,
+        ILogger<IdentityService> logger)
         {
             this.mapper = mapper;
             this.tokenService = tokenService;
@@ -40,6 +43,7 @@ namespace BLL.Services
             this.dbContext = dbContext;
             this.emailSender = emailSender;
             this.client = client;
+            this.logger = logger;
         }
         public async Task ConfirmEmail(ConfirmEmailRequest request)
         {
@@ -82,6 +86,7 @@ namespace BLL.Services
                 await emailSender.SendEmailAsync(user.Email, "Confirm your email",
    $"{client.ResetPasswordMessage}{callbackUrl}");
             }
+            logger.Log(LogLevel.Information,$"User {request.UserName} is Sign in");
 
             var jwtToken = tokenService.BuildToken(user);
             return new() { Id = user.Id, Token = tokenService.SerializeToken(jwtToken), ClientName = user.UserName};
@@ -120,6 +125,8 @@ namespace BLL.Services
                 await emailSender.SendEmailAsync(user.Email, "Confirm your email",
    $"{client.ResetPasswordMessage}{callbackUrl}");
             }
+            logger.Log(LogLevel.Information, $"User {request.UserName} is Sign Up");
+
 
             try
             {

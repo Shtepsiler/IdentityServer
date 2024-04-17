@@ -21,6 +21,7 @@ using BLL.MessageBroker;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +31,17 @@ var builder = WebApplication.CreateBuilder(args);
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+builder.Services.AddLogging(conf =>
+{
+    conf.AddConfiguration(builder.Configuration.GetSection("Logging"));
+    var fileLoggingSection = builder.Configuration.GetSection("Logging");
 
-    builder.Services.AddSwaggerGen(o =>
+    conf.AddFile(builder.Configuration.GetSection("Logging"));
+});
+
+
+
+builder.Services.AddSwaggerGen(o =>
     {
     
         o.SwaggerDoc("v1", new OpenApiInfo() { Title = "Identity Api" });
