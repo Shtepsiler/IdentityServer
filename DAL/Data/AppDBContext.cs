@@ -6,16 +6,16 @@ using DAL.Entities;
 
 namespace DAL.Data
 {
-    public class DBContext : IdentityDbContext<User, Role, Guid>
+    public class AppDBContext : IdentityDbContext<User, Role, Guid>
     {
-        public DBContext(DbContextOptions contextOptions) : base(contextOptions)
+        public AppDBContext(DbContextOptions contextOptions) : base(contextOptions)
         {
             Database.EnsureCreated();
         }
 
 
-        public DbSet<User> Users { get; }
-        public DbSet<Role> Roles { get; }
+ /*       public DbSet<User> Users { get; }
+        public DbSet<Role> Roles { get; }*/
 
 
 
@@ -23,7 +23,7 @@ namespace DAL.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
+         //   modelBuilder.ApplyConfiguration(new UserConfiguration());
 
         }
 

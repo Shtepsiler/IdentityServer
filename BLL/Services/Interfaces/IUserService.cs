@@ -22,5 +22,7 @@ namespace BLL.Services.Interfaces
         Task DeleteAsync(Guid Id);
         Task ResetPassword(ResetPasswordRequest request);
         Task ForgotPassword(ForgotPasswordRequest request);
+       
+       // Task AsignRole(Guid Id, string role);
     }
 }

@@ -25,9 +25,26 @@ namespace IdentityServer.Controllers
             _logger = logger;
             this.userService = userService;
         }
+/*
+        [HttpPost("AddRole")]
+        public IActionResult AsingRole(Guid id, string role)
+        {
+
+            try
+            {
+                userService.AsignRole(id, role);
+                return Ok();
+
+            }
+            catch (Exception ms)
+            {
+                return BadRequest(ms);
+
+            }
+        }*/
 
 
-     
+
         //GET: api/jobs/Id
         [Authorize]
         [HttpGet("{Id}")]
@@ -174,5 +191,5 @@ namespace IdentityServer.Controllers
 
 
 
-    }
+}
 
