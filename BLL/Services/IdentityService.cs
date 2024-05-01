@@ -21,7 +21,7 @@ namespace BLL.Services
 
         private readonly IMapper mapper;
         private readonly UserManager<User> userManager;
-        private readonly DBContext dbContext;
+        private readonly AppDBContext dbContext;
         private readonly ITokenService tokenService;
         private readonly EmailSender emailSender;
         private readonly ClientAppConfiguration client;
@@ -31,7 +31,7 @@ namespace BLL.Services
         IMapper mapper,
         ITokenService tokenService,
         UserManager<User> userManager,
-        DBContext dbContext
+        AppDBContext dbContext
 ,
         EmailSender emailSender,
         ClientAppConfiguration client,
@@ -57,10 +57,14 @@ namespace BLL.Services
             {
                 user.EmailConfirmed = true;
             await dbContext.SaveChangesAsync();
+                logger.Log(LogLevel.Information, $"                                                                        User id {request.Id} confirm email");
+
 
             }
             else
             {
+                logger.Log(LogLevel.Information, $"                                                                        User id {request.Id} not confirm email");
+
                 throw new EmailNotConfirmedException("Email is not confirmed");
             }  
 
@@ -74,7 +78,10 @@ namespace BLL.Services
 
             if (!await userManager.CheckPasswordAsync(user, request.Password))
             {
+                logger.Log(LogLevel.Information, $"                                                                        User {request.UserName} Sign in failure");
+
                 throw new EntityNotFoundException("Incorrect username or password.");
+
             }
             if (!user.EmailConfirmed)
             {
@@ -86,13 +93,13 @@ namespace BLL.Services
                 await emailSender.SendEmailAsync(user.Email, "Confirm your email",
    $"{client.ResetPasswordMessage}{callbackUrl}");
             }
-            logger.Log(LogLevel.Information,$"User {request.UserName} is Sign in");
+            logger.Log(LogLevel.Information,$"                                                                        User {request.UserName} is Sign in successfully");
 
             var jwtToken = tokenService.BuildToken(user);
             return new() { Id = user.Id, Token = tokenService.SerializeToken(jwtToken), ClientName = user.UserName};
         }
 
-        public Task SignOutAsync(Guid id)
+        public async   Task SignOutAsync(Guid id)
         {
             throw new NotImplementedException();
         }
@@ -125,7 +132,7 @@ namespace BLL.Services
                 await emailSender.SendEmailAsync(user.Email, "Confirm your email",
    $"{client.ResetPasswordMessage}{callbackUrl}");
             }
-            logger.Log(LogLevel.Information, $"User {request.UserName} is Sign Up");
+            logger.Log(LogLevel.Information, $"                                                                        User {request.UserName} is Sign up successfully");
 
 
             try

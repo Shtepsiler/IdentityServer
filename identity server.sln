@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer", "IdentityServer\IdentityServer.csproj", "{EEE874CE-70FC-4F69-BBDC-23C99BAFD758}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DAL", "DAL\DAL.csproj", "{645A5C99-9C09-4076-87E5-E73E7E3E181A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLL", "BLL\BLL.csproj", "{A879EF78-6C70-4F00-B724-2C77D3D5D738}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EEE874CE-70FC-4F69-BBDC-23C99BAFD758}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEE874CE-70FC-4F69-BBDC-23C99BAFD758}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEE874CE-70FC-4F69-BBDC-23C99BAFD758}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEE874CE-70FC-4F69-BBDC-23C99BAFD758}.Release|Any CPU.Build.0 = Release|Any CPU
+		{645A5C99-9C09-4076-87E5-E73E7E3E181A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{645A5C99-9C09-4076-87E5-E73E7E3E181A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{645A5C99-9C09-4076-87E5-E73E7E3E181A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{645A5C99-9C09-4076-87E5-E73E7E3E181A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A879EF78-6C70-4F00-B724-2C77D3D5D738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A879EF78-6C70-4F00-B724-2C77D3D5D738}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A879EF78-6C70-4F00-B724-2C77D3D5D738}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A879EF78-6C70-4F00-B724-2C77D3D5D738}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
