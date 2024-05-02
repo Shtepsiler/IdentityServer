@@ -16,10 +16,7 @@ namespace BLL.Factories
             audience: jwtTokenConfiguration.Audience,
             claims: GetClaims(user),
             expires: JwtTokenConfiguration.ExpirationDate,
-            signingCredentials: jwtTokenConfiguration.Credentials
-            
-            
-            );
+            signingCredentials: jwtTokenConfiguration.Credentials);
 
         private static List<Claim> GetClaims(User user) => new()
         {
