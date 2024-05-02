@@ -23,6 +23,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.Extensions.Logging;
 using MassTransit;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,14 +34,15 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddLogging(conf =>
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
 {
-    conf.AddConfiguration(builder.Configuration.GetSection("Logging"));
-    var fileLoggingSection = builder.Configuration.GetSection("Logging");
-
-    conf.AddFile(builder.Configuration.GetSection("Logging"));
+    loggerConfiguration
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+        .Enrich.FromLogContext()
+        .WriteTo.File(builder.Configuration["Logging:File:Path"], rollingInterval: RollingInterval.Day)
+        .WriteTo.Console()
+        ;
 });
-
 
 
 builder.Services.AddSwaggerGen(o =>
