@@ -25,6 +25,7 @@ using Microsoft.Extensions.Logging;
 using MassTransit;
 using Serilog;
 using Serilog.Events;
+using MassTransit.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -136,15 +137,14 @@ builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 
-
-
-
-
 builder.Services.AddAuthentication(opt =>
 {
 
-    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme/*CookieAuthenticationDefaults.AuthenticationScheme*/;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme /*GoogleDefaults.AuthenticationScheme*/;
+    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+  //  opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+  //  opt.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
 
 }).AddCookie(x =>
 {
@@ -170,6 +170,7 @@ builder.Services.AddAuthentication(opt =>
         }
     };
 
+   
 
 
 }).AddGoogle(GoogleDefaults.AuthenticationScheme, opt =>
@@ -182,13 +183,15 @@ builder.Services.AddAuthentication(opt =>
 
 builder.Services.AddCors(opt =>
 {
-    opt.AddPolicy(name: "CorsPolicy", builder =>
+    opt.AddPolicy(name: "Open", builder =>
     {
-        builder.WithOrigins()
+        builder.AllowAnyOrigin()
         .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials();
+        ;
     });
+
+
 });
 
 
@@ -203,7 +206,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("CorsPolicy");
+app.UseCors("Open");
 app.UseAuthorization();
 
 app.MapControllers();

@@ -3,6 +3,8 @@ using BLL.DTO.Responses;
 using BLL.Services;
 using BLL.Services.Interfaces;
 using DAL.Exceptions;
+using IdentityServer.Attributes;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Caching.Distributed;
 namespace IdentityServer.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
     [ApiController]
     public class RoleController : ControllerBase
     {
@@ -27,14 +30,13 @@ namespace IdentityServer.Controllers
         }
 
 
-        [Authorize]
-        [HttpPost("AsingRole")]
-        public async Task<IActionResult> AsingRoleAsync(Guid id, string role)
+        [HttpPost("AssignRole")]
+        public async Task<IActionResult> AssignRoleAsync(Guid id, string role)
         {
 
             try
             {
-                await _RoleService.AsignRole(id, role);
+                await _RoleService.AssignRole(id, role);
                 return Ok();
 
             }
@@ -46,8 +48,39 @@ namespace IdentityServer.Controllers
 
         }
 
-      
+
+        [HttpPost("UnAssignRole")]
+        public async Task<IActionResult> UnAssignRoleAsync(Guid id, string role)
+        {
+
+            try
+            {
+                await _RoleService.UnAssignRole(id, role);
+                return Ok();
+
+            }
+            catch (Exception ms)
+            {
+                return BadRequest(ms);
+
+            }
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
-    }
+}
 

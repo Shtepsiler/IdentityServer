@@ -7,6 +7,7 @@ using DAL.Data;
 using DAL.Entities;
 using DAL.Exceptions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -41,8 +42,10 @@ namespace BLL.Services
 
         public async Task ResetPassword(ResetPasswordRequest request)
         {
-   
-            var user = await userManager.FindByIdAsync(request.Id.ToString());
+            try
+            {
+
+                var user = await userManager.FindByIdAsync(request.Id.ToString());
             if (user == null)
             {
                 // Don't reveal that the user does not exist
@@ -55,12 +58,18 @@ namespace BLL.Services
                 throw new ArgumentException(string.Join("\n",
                     result.Errors.Select(error => error.Description)));
             }
-
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task ForgotPassword(ForgotPasswordRequest  request)
         {
-            var user = await userManager.FindByEmailAsync(request.Email).ConfigureAwait(false);
+            try
+            {
+                var user = await userManager.FindByEmailAsync(request.Email).ConfigureAwait(false);
             if (user == null || !(await userManager.IsEmailConfirmedAsync(user).ConfigureAwait(false)))
                 throw new Exception("Please verify your email address.");
 
@@ -68,34 +77,23 @@ namespace BLL.Services
          
             var callbackUrl = $"{client.Url}{client.ResetPasswordPath}?Id={user.Id}&Code={code}";
             await emailSender.SendEmailAsync(request.Email, "Reset password", callbackUrl);
-
-        }
-        public async Task AsignRole(Guid id, string roleName)
-        {
-            try
-            {
-                var user = await userManager.FindByIdAsync(id.ToString());
-                if (user == null)
-                {
-                    throw new Exception("User not found");
-                }
-
-                var role = await roleManager.FindByNameAsync(roleName);
-                if (role == null)
-                {
-                    // Якщо роль не існує, створити її
-                    role = new Role(roleName);
-                    await roleManager.CreateAsync(role);
-                }
-
-                // Присвоїти роль користувачеві
-                await userManager.AddToRoleAsync(user, roleName);
             }
-            catch (ObjectDisposedException ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-            catch (Exception ex)
+        }
+
+        public async Task<IEnumerable<UserResponse>> GetAllUsersAsync()
+        {
+            try
+            {
+                var users = await userManager.Users.ToListAsync();
+
+
+                return mapper.Map<IEnumerable<User>, IEnumerable<UserResponse>>(users);
+            }
+            catch(Exception ex)
             {
                 throw ex;
             }
@@ -104,17 +102,26 @@ namespace BLL.Services
 
         public async Task<UserResponse> GetClientById(Guid Id)
         {
-            string id = Id.ToString();
+            try
+            {
+                string id = Id.ToString();
             var user = await userManager.FindByIdAsync(id);
 
             if (user == null) throw new Exception();
 
             return mapper.Map<UserResponse>(user);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task UpdateAsync(Guid Id, UserRequest client)
         {
-            var user = await userManager.FindByIdAsync(Id.ToString());
+            try
+            {
+                var user = await userManager.FindByIdAsync(Id.ToString());
 
             if (user == null) throw new Exception();
 
@@ -127,15 +134,27 @@ namespace BLL.Services
             await userManager.UpdateAsync(user);
 
             await dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public async Task DeleteAsync(Guid Id)
-        {
-            var user = await userManager.FindByIdAsync(Id.ToString());
+            {
+                try
+                {
+                    var user = await userManager.FindByIdAsync(Id.ToString());
             if (user == null) throw new Exception();
 
             await userManager.DeleteAsync(user);
             await dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 

@@ -27,6 +27,7 @@ namespace BLL.Factories
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Authentication, user.UserName)
             };
@@ -36,7 +37,7 @@ namespace BLL.Factories
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
-            }
+            } 
 
             return claims;
         }

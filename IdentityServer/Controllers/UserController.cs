@@ -3,6 +3,8 @@ using BLL.DTO.Responses;
 using BLL.Services;
 using BLL.Services.Interfaces;
 using DAL.Exceptions;
+using IdentityServer.Attributes;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -28,7 +30,7 @@ namespace IdentityServer.Controllers
         }
 
         //GET: api/jobs/Id
-        [Authorize]
+        [CustomAuthorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         [HttpGet("{Id}")]
         public async Task<ActionResult<UserResponse>> GetByIdAsync(Guid Id)
         {
@@ -57,7 +59,7 @@ namespace IdentityServer.Controllers
 
 
         //POST: api/jobs/Id
-        [Authorize]
+        [CustomAuthorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         [HttpPut("{Id}")]
         public async Task<ActionResult> UpdateAsync(Guid Id, [FromBody] UserRequest client)
         {
@@ -90,7 +92,7 @@ namespace IdentityServer.Controllers
         }
 
         //GET: api/jobs/Id
-        [Authorize]
+        [CustomAuthorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
         [HttpDelete("{Id}")]
         public async Task<ActionResult> DeleteByIdAsync(Guid Id)
         {

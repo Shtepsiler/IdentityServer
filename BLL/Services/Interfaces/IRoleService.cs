@@ -2,6 +2,7 @@
 {
     public interface IRoleService
     {
-        Task AsignRole(Guid id, string role);
+        Task AssignRole(Guid id, string role);
+        Task UnAssignRole(Guid id, string role);
     }
 }

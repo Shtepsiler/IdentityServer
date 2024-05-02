@@ -1,7 +1,9 @@
 ﻿using BLL.Services.Interfaces;
 using DAL.Data;
 using DAL.Entities;
+using DAL.Exceptions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +26,7 @@ namespace BLL.Services
             _UserManager = userManager;
             this.dbContext = dbContext;
         }
-        public async Task AsignRole(Guid id, string roleName)
+        public async Task AssignRole(Guid id, string roleName)
         {
             try
             {
@@ -37,17 +39,36 @@ namespace BLL.Services
                 var role = await _RoleManager.FindByNameAsync(roleName);
                 if (role == null)
                 {
-                    // Якщо роль не існує, створити її
-                    role = new Role(roleName);
-                    await _RoleManager.CreateAsync(role);
+                    throw new EntityNotFoundException($"Role {roleName} not found");
                 }
 
                 // Присвоїти роль користувачеві
                 await _UserManager.AddToRoleAsync(user, roleName);
             }
-            catch (ObjectDisposedException ex)
+            catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        public async Task UnAssignRole(Guid id, string roleName)
+        {
+            try
+            {
+                var user = await _UserManager.FindByIdAsync(id.ToString());
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                var role = await _RoleManager.FindByNameAsync(roleName);
+                if (role == null)
+                {
+                    throw new EntityNotFoundException($"Role {roleName} not found");
+
+                }
+
+                // Присвоїти роль користувачеві
+                await _UserManager.RemoveFromRoleAsync(user, roleName);
             }
             catch (Exception ex)
             {
@@ -55,10 +76,55 @@ namespace BLL.Services
             }
         }
 
+        public async Task<IEnumerable<Role>> GetRolesAsync()
+        {
+
+            try
+            {
+             return    await _RoleManager.Roles.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
 
-
-
-
+        }
+        public async Task CreateRole(string name)
+        {
+            try
+            {
+                var role = new Role(name);
+                await _RoleManager.CreateAsync(role);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task UpdateRole(string name)
+        {
+            try
+            {
+                var role = new Role(name);
+                await _RoleManager.CreateAsync(role);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task DeleteRole(string name)
+        {
+            try
+            {
+                var role = new Role(name);
+                await _RoleManager.CreateAsync(role);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
