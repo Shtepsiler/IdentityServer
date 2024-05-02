@@ -4,36 +4,41 @@ using DAL.Entities;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace BLL.Factories
 {
     public class JwtSecurityTokenFactory : IJwtSecurityTokenFactory
     {
         private readonly JwtTokenConfiguration jwtTokenConfiguration;
-        private readonly UserManager<User> userManager; 
-        public JwtSecurityToken BuildToken(User user) => new(
+        private readonly UserManager<User> userManager;
+
+        public JwtSecurityToken BuildToken(User user) => new JwtSecurityToken(
             issuer: jwtTokenConfiguration.Issuer,
             audience: jwtTokenConfiguration.Audience,
             claims: GetClaims(user),
-            expires: JwtTokenConfiguration.ExpirationDate,
+            expires: jwtTokenConfiguration.ExpirationDate,
             signingCredentials: jwtTokenConfiguration.Credentials);
 
-        private  List<Claim> GetClaims(User user) => new()
+        private IEnumerable<Claim> GetClaims(User user)
         {
-            new(JwtRegisteredClaimNames.UniqueName, user.UserName),
-            new(ClaimTypes.Name, user.UserName),
-            new(ClaimTypes.Authentication, user.UserName),
-            new(ClaimTypes.Role,GetRole(user))
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Authentication, user.UserName)
+            };
 
-        };
+            // Add user roles as claims
+            var roles = userManager.GetRolesAsync(user).Result;
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
-        private string GetRole(User user)
-        {
-            return userManager.GetRolesAsync(user).Result.First();
-
-
-
+            return claims;
         }
 
         public JwtSecurityTokenFactory(JwtTokenConfiguration jwtTokenConfiguration, UserManager<User> userManager)
