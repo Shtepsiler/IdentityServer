@@ -3,6 +3,7 @@ using BLL.DTO.Responses;
 using BLL.Services;
 using BLL.Services.Interfaces;
 using DAL.Exceptions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -27,7 +28,7 @@ namespace IdentityServer.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,Roles = "admin")]
         [HttpPost("AsingRole")]
         public async Task<IActionResult> AsingRoleAsync(Guid id, string role)
         {
@@ -45,6 +46,13 @@ namespace IdentityServer.Controllers
             }
 
         }
+
+
+
+
+
+
+
 
       
 

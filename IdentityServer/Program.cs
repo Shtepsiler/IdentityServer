@@ -25,6 +25,7 @@ using Microsoft.Extensions.Logging;
 using MassTransit;
 using Serilog;
 using Serilog.Events;
+using MassTransit.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -138,7 +139,18 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 
 
 
+/*builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", policy =>
+    {
+        policy.RequireRole("admin");
+    });
+    opt.AddPolicy("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", policy =>
+    {
+        policy.RequireRole("user");
+    });
 
+});*/
 
 builder.Services.AddAuthentication(opt =>
 {
@@ -170,6 +182,7 @@ builder.Services.AddAuthentication(opt =>
         }
     };
 
+   
 
 
 }).AddGoogle(GoogleDefaults.AuthenticationScheme, opt =>
@@ -182,13 +195,15 @@ builder.Services.AddAuthentication(opt =>
 
 builder.Services.AddCors(opt =>
 {
-    opt.AddPolicy(name: "CorsPolicy", builder =>
+    opt.AddPolicy(name: "Open", builder =>
     {
-        builder.WithOrigins()
+        builder.AllowAnyOrigin()
         .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials();
+        /*.AllowCredentials()*/;
     });
+
+
 });
 
 
@@ -203,7 +218,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("CorsPolicy");
+app.UseCors("Open");
 app.UseAuthorization();
 
 app.MapControllers();
