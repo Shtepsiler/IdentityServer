@@ -15,6 +15,6 @@ namespace BLL.Services.Interfaces
         Task DeleteAsync(Guid Id);
         Task ResetPassword(ResetPasswordRequest request);
         Task ForgotPassword(ForgotPasswordRequest request);
-
+        Task<IEnumerable<UserResponse>> GetAllUsersAsync();
     }
 }

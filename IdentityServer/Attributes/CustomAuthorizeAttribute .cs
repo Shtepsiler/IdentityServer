@@ -4,15 +4,28 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Controllers;
-
+using Serilog;
 namespace IdentityServer.Attributes
 {
     public class CustomAuthorizeAttribute: AuthorizeAttribute, IAsyncAuthorizationFilter
     {
+
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
+            var actionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
+            var controllerName = string.Empty;
+            var methodName = string.Empty;   
+            if (actionDescriptor != null)
+            {
+                // Отримати ім'я класу контролера
+                 controllerName = actionDescriptor.ControllerName;
 
-                if (!context.HttpContext.User.Identity.IsAuthenticated)
+                // Отримати ім'я методу контролера
+                 methodName = actionDescriptor.ActionName;
+
+                // Тепер ви можете використовувати controllerName та methodName за потреби
+            }
+            if (!context.HttpContext.User.Identity.IsAuthenticated)
             {
                 context.Result = new UnauthorizedResult();
                 return;
@@ -23,17 +36,21 @@ namespace IdentityServer.Attributes
 
             // Отримати ролі користувача
             var userRoles = context.HttpContext.User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
-            var roles = Roles.Split(" ").ToList();
+
             // Отримати запитуваний ID з запиту
             var requestedId = context.HttpContext.Request.RouteValues["Id"]?.ToString();
 
+
             // Якщо користувач є членом зазнаенних ролей або запитує дані про себе, то дозволити доступ
-            if (userRoles.Any(r => roles.Contains(r)) || requestedId == userIdFromToken)
+            if (userRoles.Contains("admin") || requestedId == userIdFromToken)
             {
+
+                Log.Logger.Information( $"user with id {userIdFromToken} try to {controllerName}.{methodName} acces allowed");
                 return;
             }
             else
             {
+                Log.Logger.Information( $"user with id {userIdFromToken} try to {controllerName}.{methodName} acces denited");
                 // Якщо користувач не адміністратор і не запитує дані про себе, повернути заборону
                 context.Result = new ForbidResult();
                 return;

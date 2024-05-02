@@ -116,9 +116,9 @@ namespace BLL.Services
 
                 throw new ArgumentException(errors);
             }
-
+            await userManager.AddToRoleAsync(user,"user");
             await dbContext.SaveChangesAsync();
-            var newClient = await userManager.FindByNameAsync(request.UserName);
+            var newUser = await userManager.FindByNameAsync(request.UserName);
 
 
             if (!user.EmailConfirmed)
@@ -129,19 +129,19 @@ namespace BLL.Services
                 var callbackUrl = $"{client.Url}{client.EmailConfirmationPath}?Id={userId}&Code={code}";
 
 
-                await emailSender.SendEmailAsync(user.Email, "Confirm your email",
-   $"{client.ResetPasswordMessage}{callbackUrl}");
+                await emailSender.SendEmailAsync(user.Email, "Confirm your email",$"{client.ResetPasswordMessage} {callbackUrl}");
             }
+
             logger.Log(LogLevel.Information, $"                                                                        User {request.UserName} is Sign up successfully");
 
 
             try
             {
-                //  var newClient = await userManager.FindByNameAsync(request.UserName);
+                //  var newUser = await userManager.FindByNameAsync(request.UserName);
                 var jwtToken = tokenService.BuildToken(user);
-                return new() { Id = newClient.Id, UserName = newClient.UserName, Token = tokenService.SerializeToken(jwtToken)};
+                return new() { Id = newUser.Id, UserName = newUser.UserName, Token = tokenService.SerializeToken(jwtToken)};
             }
-            catch (Exception ex) { throw new Exception("database troble"); }
+            catch (Exception ex) { throw ex; }
         }
 
 

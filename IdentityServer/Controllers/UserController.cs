@@ -30,7 +30,7 @@ namespace IdentityServer.Controllers
         }
 
         //GET: api/jobs/Id
-        [CustomAuthorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
+        [CustomAuthorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin,user")]
         [HttpGet("{Id}")]
         public async Task<ActionResult<UserResponse>> GetByIdAsync(Guid Id)
         {
@@ -59,7 +59,7 @@ namespace IdentityServer.Controllers
 
 
         //POST: api/jobs/Id
-        [CustomAuthorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
+        [CustomAuthorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin,user")]
         [HttpPut("{Id}")]
         public async Task<ActionResult> UpdateAsync(Guid Id, [FromBody] UserRequest client)
         {
@@ -92,7 +92,7 @@ namespace IdentityServer.Controllers
         }
 
         //GET: api/jobs/Id
-        [CustomAuthorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin")]
+        [CustomAuthorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "admin,user")]
         [HttpDelete("{Id}")]
         public async Task<ActionResult> DeleteByIdAsync(Guid Id)
         {
