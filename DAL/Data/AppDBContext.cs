@@ -14,16 +14,14 @@ namespace DAL.Data
         }
 
 
- /*       public DbSet<User> Users { get; }
-        public DbSet<Role> Roles { get; }*/
-
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-         //   modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
 
         }
 

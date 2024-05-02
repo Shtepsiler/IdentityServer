@@ -7,11 +7,7 @@ namespace DAL.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            // builder.Property<int>(p => p.Id).UseIdentityColumn();
 
-            builder.Property(p => p.UserName).HasMaxLength(256);
-
-            //builder.HasKey(p => p.Id);
         }
     }
 }

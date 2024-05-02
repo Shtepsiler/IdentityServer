@@ -24,7 +24,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
-using DAL.Stores;
+using DAL.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,14 +34,15 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddLogging(conf =>
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
 {
-    conf.AddConfiguration(builder.Configuration.GetSection("Logging"));
-    var fileLoggingSection = builder.Configuration.GetSection("Logging");
-
-    conf.AddFile(builder.Configuration.GetSection("Logging"));
+    loggerConfiguration
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+        .Enrich.FromLogContext()
+        .WriteTo.File(builder.Configuration["Logging:File:Path"], rollingInterval: RollingInterval.Day)
+        .WriteTo.Console()
+        ;
 });
-
 
 
 builder.Services.AddSwaggerGen(o =>
@@ -140,8 +141,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(opt =>
 {
 
-    opt.DefaultScheme = JwtBearerDefaults.AuthenticationSchemeCookieAuthenticationDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationSchemeGoogleDefaults.AuthenticationScheme;
+    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
 
 }).AddCookie(x =>
 {
@@ -166,7 +169,7 @@ builder.Services.AddAuthentication(opt =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["JwtSecurityKey"])),
-        ClockSkew = TimeSpan.FromHours(1),
+        ClockSkew = TimeSpan.FromMinutes(5),
 
     };
 
@@ -181,42 +184,19 @@ builder.Services.AddAuthentication(opt =>
 
 
 
-
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-       .AddJwtBearer(options =>
-       {
-           options.TokenValidationParameters = new()
-           {
-               ValidateIssuer = false,
-               ValidateAudience = false,
-               ValidateLifetime = true,
-               ValidateIssuerSigningKey = true,
-               IssuerSigningKey = new SymmetricSecurityKey(
-                   Encoding.UTF8.GetBytes(builder.Configuration["JwtSecurityKey"])),
-               ClockSkew = TimeSpan.FromHours(1),
-           };
-       });
-
 /*builder.Services.AddCors(opt =>
 {
     opt.AddPolicy(name: "CorsPolicy", builder =>
     {
-        builder.WithOrigins("https://localhost:7071")
+        builder.WithOrigins("https://localhost:7071","http://localhost:5126")
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();
     });
-});*/
+});
+*/
 
 
-/*builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
-{
-    loggerConfiguration
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-        .Enrich.FromLogContext()
-        .WriteTo.File(builder.Configuration["Logging:File:Path"], rollingInterval: RollingInterval.Day);
-});*/
 
 
 var app = builder.Build();
@@ -227,33 +207,14 @@ var app = builder.Build();
         app.UseSwagger();
         app.UseSwaggerUI();
     }
-    
-    
-    using (var  scope = app.Services.CreateScope())
-{
-    try
+    using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
     {
-
-        var rolemanager = scope.ServiceProvider.GetService<RoleManager<Role>>();
-
-
-        var roles = new List<string>() { "admin", "user" };
-
-        foreach (var role in roles)
-            if (rolemanager.FindByNameAsync(role) == null)
-                await rolemanager.CreateAsync(new(role));
+        Seed.Initialize(scope.ServiceProvider).Wait();
     }
-    catch (Exception e)
-    {
 
-    }
-    }
-    
-    
-    
     app.UseHttpsRedirection();
-/*    app.UseCors("CorsPolicy");
-*/    app.UseAuthorization();
+  //  app.UseCors("CorsPolicy");
+    app.UseAuthorization();
     
     app.MapControllers();
     

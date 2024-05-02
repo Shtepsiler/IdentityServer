@@ -26,25 +26,6 @@ namespace IdentityServer.Controllers
             _logger = logger;
             this.userService = userService;
         }
-/*
-        [HttpPost("AddRole")]
-        public IActionResult AsingRole(Guid id, string role)
-        {
-
-            try
-            {
-                userService.AsignRole(id, role);
-                return Ok();
-
-            }
-            catch (Exception ms)
-            {
-                return BadRequest(ms);
-
-            }
-        }*/
-
-
 
         //GET: api/jobs/Id
         [Authorize]
@@ -72,24 +53,6 @@ namespace IdentityServer.Controllers
                 _logger.LogError($"Транзакція сфейлилась! Щось пішло не так у методі GetByNameAsync() - {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
-        }
-
-        [HttpPost("AddRole")]
-        public IActionResult AsingRole(Guid id, string role)
-        {
-
-            try
-            {
-                userService.AsignRole(id, role);
-                return Ok();
-
-            }
-            catch (Exception ms)
-            {
-                return BadRequest(ms);
-
-            }
-
         }
 
 
