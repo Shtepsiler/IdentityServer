@@ -107,7 +107,7 @@ namespace IdentityServer.Controllers
                 IsEssential = true,
                 SameSite = SameSiteMode.None
             });
-            return  Ok(new JwtResponse() { Id = user.Id, Token = tokenService.SerializeToken(jwtToken),  ClientName= user.UserName });
+            return  Ok(new JwtResponse() { Id = user.Id, Token = tokenService.SerializeToken(jwtToken), UserName = user.UserName });
 
         }
 

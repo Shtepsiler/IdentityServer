@@ -96,7 +96,7 @@ namespace BLL.Services
             logger.Log(LogLevel.Information,$"                                                                        User {request.UserName} is Sign in successfully");
 
             var jwtToken = tokenService.BuildToken(user);
-            return new() { Id = user.Id, Token = tokenService.SerializeToken(jwtToken), ClientName = user.UserName};
+            return new() { Id = user.Id, Token = tokenService.SerializeToken(jwtToken), UserName = user.UserName};
         }
 
         public async   Task SignOutAsync(Guid id)
@@ -139,7 +139,7 @@ namespace BLL.Services
             {
                 //  var newClient = await userManager.FindByNameAsync(request.UserName);
                 var jwtToken = tokenService.BuildToken(user);
-                return new() { Id = newClient.Id, ClientName = newClient.UserName, Token = tokenService.SerializeToken(jwtToken)};
+                return new() { Id = newClient.Id, UserName = newClient.UserName, Token = tokenService.SerializeToken(jwtToken)};
             }
             catch (Exception ex) { throw new Exception("database troble"); }
         }
