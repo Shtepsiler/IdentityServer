@@ -2,6 +2,7 @@
 using BLL.DTO.Responses;
 using BLL.Services;
 using BLL.Services.Interfaces;
+using DAL.Entities;
 using DAL.Exceptions;
 using IdentityServer.Attributes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -67,7 +68,45 @@ namespace IdentityServer.Controllers
 
         }
 
+        [HttpGet("GetRoles")]
 
+
+        public async Task<IActionResult> GetRolesAsync()
+        {
+
+            try
+            {
+                return Ok(await _RoleService.GetRolesAsync());
+
+            }
+            catch (Exception ms)
+            {
+                return BadRequest(ms);
+
+            }
+
+        }
+
+
+        [HttpGet("GetRolesForUser")]
+
+
+        public async Task<IActionResult> GetRolesForUserAsync([FromQuery]Guid id)
+        {
+
+            try
+            {
+
+                return Ok(await _RoleService.GetRolesForUserAsync(id));
+
+            }
+            catch (Exception ms)
+            {
+                return BadRequest(ms);
+
+            }
+
+        }
 
 
 

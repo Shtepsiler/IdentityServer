@@ -126,5 +126,27 @@ namespace BLL.Services
                 throw ex;
             }
         }
+
+        public async Task<IEnumerable<string>> GetRolesForUserAsync(Guid id)
+        {
+
+            try
+            {
+
+
+                var user = await _UserManager.FindByIdAsync(id.ToString());
+                if (user == null)
+                {
+                    throw new EntityNotFoundException($"user with id {id} not found");
+                }
+
+               return await _UserManager.GetRolesAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
 }

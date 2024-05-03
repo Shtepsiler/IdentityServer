@@ -23,7 +23,6 @@ namespace IdentityServer.Attributes
                 // Отримати ім'я методу контролера
                  methodName = actionDescriptor.ActionName;
 
-                // Тепер ви можете використовувати controllerName та methodName за потреби
             }
             if (!context.HttpContext.User.Identity.IsAuthenticated)
             {
@@ -41,16 +40,16 @@ namespace IdentityServer.Attributes
             var requestedId = context.HttpContext.Request.RouteValues["Id"]?.ToString();
 
 
-            // Якщо користувач є членом зазнаенних ролей або запитує дані про себе, то дозволити доступ
+            // Якщо користувач є адміном або запитує дані про себе, то дозволити доступ
             if (userRoles.Contains("admin") || requestedId == userIdFromToken)
             {
 
-                Log.Logger.Information( $"user with id {userIdFromToken} try to {controllerName}.{methodName} acces allowed");
+                Log.Logger.Information( $"user with id {userIdFromToken} try to {controllerName}.{methodName}({requestedId})  acces allowed");
                 return;
             }
             else
             {
-                Log.Logger.Information( $"user with id {userIdFromToken} try to {controllerName}.{methodName} acces denited");
+                Log.Logger.Information( $"user with id {userIdFromToken} try to {controllerName}.{methodName}({requestedId}) acces denited");
                 // Якщо користувач не адміністратор і не запитує дані про себе, повернути заборону
                 context.Result = new ForbidResult();
                 return;
