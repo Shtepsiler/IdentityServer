@@ -1,0 +1,34 @@
+version: '3.4'
+networks:
+  ServiceStationNetwork:
+
+services:
+  identityserver:
+    image: ${DOCKER_REGISTRY-}identityserver
+    build:
+      context: .
+      dockerfile: IdentityServer/Dockerfile
+    networks:
+         - ServiceStationNetwork
+    ports:
+      - 2040:80
+      - 2041:443
+    environment:
+      - DB_HOST=Database
+      - DB_USER=sa
+      - DB_NAME=IdentityDatabase
+      - DB_SA_PASSWORD=Qwerty123
+    depends_on:
+      - database
+
+  database:
+    container_name: Database
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Qwerty123
+    networks:
+      - ServiceStationNetwork
+    ports:
+      - 1443:1433  
+      

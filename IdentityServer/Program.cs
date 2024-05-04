@@ -26,6 +26,7 @@ using MassTransit;
 using Serilog;
 using Serilog.Events;
 using MassTransit.Configuration;
+using DAL.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -204,8 +205,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+using (var scope = app.Services.CreateAsyncScope())
+{
+    await Seed.Initialize(scope.ServiceProvider);
 
-app.UseHttpsRedirection();
+}
+
+    app.UseHttpsRedirection();
 app.UseCors("Open");
 app.UseAuthorization();
 

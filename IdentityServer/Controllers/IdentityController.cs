@@ -50,7 +50,10 @@ namespace IdentityServer.Controllers
             try
             {               
                 if (request == null) { throw new ArgumentNullException(nameof(request)); }
-
+                var refererUrl = HttpContext.Request.Headers["Referer"].ToString();
+                var uri = new Uri(refererUrl);
+                var baseUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}";
+                request.refererUrl = baseUrl;    
                 var valid = _SingInValidator.Validate(request);
 
                 if (!valid.IsValid) { throw new ValidationException(valid.Errors); }
@@ -77,8 +80,11 @@ namespace IdentityServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { e.Message });
             }
         }
-        [HttpPost("LoginWithGoogle")]
 
+
+
+
+        [HttpPost("LoginWithGoogle")]
         public async Task<ActionResult<JwtResponse>> LoginWithGoogle([FromBody] string credentials)
         {
             var settings = new GoogleJsonWebSignature.ValidationSettings()

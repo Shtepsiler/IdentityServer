@@ -88,7 +88,7 @@ namespace BLL.Services
                 var userId = await userManager.GetUserIdAsync(user);
                 var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
                // code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                var callbackUrl = $"{client.Url}{client.EmailConfirmationPath}?Id={userId}&Code={System.Net.WebUtility.UrlEncode(code)}";
+                var callbackUrl = $"{request.refererUrl}{client.EmailConfirmationPath}?Id={userId}&Code={System.Net.WebUtility.UrlEncode(code)}";
 
                 await emailSender.SendEmailAsync(user.Email, "Confirm your email",
    $"{client.ResetPasswordMessage}{callbackUrl}");
