@@ -39,6 +39,45 @@ namespace IdentityServer.Controllers
             this.tokenService = tokenService;
         }
 
+
+        [HttpPost("signUp")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<JwtResponse>> SignUpAsync(
+       [FromBody] UserSignUpRequest request)
+        {
+            try
+            {
+                if (request == null) { throw new ArgumentNullException(nameof(request)); }
+                var refererUrl = HttpContext.Request.Headers["Referer"].ToString();
+                var uri = new Uri(refererUrl);
+                var baseUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}";
+                request.refererUrl = baseUrl;
+                var valid = _SingUpValidator.Validate(request);
+                if (!valid.IsValid) { throw new ValidationException(valid.Errors); }
+
+                var response = await _IdentityService.SignUpAsync(request);
+
+                HttpContext.Response.Cookies.Append("Bearer", response.Token, new()
+                {
+                    Expires = DateTime.Now.AddDays(2),
+                    HttpOnly = true,
+                    Secure = true,
+                    IsEssential = true,
+                    SameSite = SameSiteMode.None
+                });
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { e.Message });
+            }
+        }
+
+
+
+
         [HttpPost("signIn")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -163,39 +202,7 @@ namespace IdentityServer.Controllers
         }
 
 
-        [HttpPost("signUp")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<JwtResponse>> SignUpAsync(
-         [FromBody] UserSignUpRequest request)
-        {
-            try
-            {
-                if (request == null) { throw new ArgumentNullException(nameof(request)); }
-
-                var valid = _SingUpValidator.Validate(request);
-                if (!valid.IsValid) { throw new ValidationException(valid.Errors); }
-
-                var response = await _IdentityService.SignUpAsync(request);
-
-                HttpContext.Response.Cookies.Append("Bearer", response.Token, new()
-                {
-                    Expires = DateTime.Now.AddDays(2),
-                    HttpOnly = true,
-                    Secure = true,
-                    IsEssential = true,
-                    SameSite = SameSiteMode.None
-                });
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { e.Message });
-            }
-        }
-
-
+      
 
 
 
