@@ -33,7 +33,8 @@ namespace DAL.Seeding
                 defaultUser = new User
                 {
                     UserName = "broccolicodeman",
-                    Email = "broccolicodeman.shopoyisty@gmail.com"
+                    Email = "broccolicodeman.shopoyisty@gmail.com",
+                    EmailConfirmed = true
                     // Add any additional properties here
                 };
                 var result = await userManager.CreateAsync(defaultUser, ",Hjrjksrjlvfy8"); // Change the password

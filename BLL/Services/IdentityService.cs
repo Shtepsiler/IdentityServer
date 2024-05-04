@@ -94,7 +94,7 @@ namespace BLL.Services
             logger.Log(LogLevel.Information,$"                                                                        User {request.UserName} is Sign in successfully");
 
             var jwtToken = tokenService.BuildToken(user);
-            return new() { Id = user.Id, Token = tokenService.SerializeToken(jwtToken), UserName = user.UserName};
+            return new() { Id = user.Id, Token = tokenService.SerializeToken(jwtToken), UserName = user.UserName,IsEmailConfirmed = user.EmailConfirmed};
         }
 
         public async   Task SignOutAsync(Guid id)
@@ -136,7 +136,7 @@ namespace BLL.Services
             {
                 //  var newUser = await userManager.FindByNameAsync(request.UserName);
                 var jwtToken = tokenService.BuildToken(user);
-                return new() { Id = newUser.Id, UserName = newUser.UserName, Token = tokenService.SerializeToken(jwtToken)};
+                return new() { Id = newUser.Id, UserName = newUser.UserName, Token = tokenService.SerializeToken(jwtToken), IsEmailConfirmed = user.EmailConfirmed };
             }
             catch (Exception ex) { throw ex; }
         }
